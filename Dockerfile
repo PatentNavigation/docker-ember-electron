@@ -5,6 +5,10 @@ ENV MONO_VERSION 4.8.0.495
 # Node 6 repo
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
 
+# Yarn repo
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+
 # Mono repo
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
 RUN echo "deb http://download.mono-project.com/repo/debian wheezy main" | tee /etc/apt/sources.list.d/mono-xamarin.list
@@ -17,6 +21,7 @@ RUN dpkg --add-architecture i386 && \
   git \
   zip \
   nodejs \
+  yarn \
   # libgconf needed for electron
   libgconf-2-4 \
   fakeroot \
