@@ -17,6 +17,7 @@ RUN echo "deb http://download.mono-project.com/repo/debian wheezy-libjpeg62-comp
 RUN dpkg --add-architecture i386 && \
   apt-get update && \
   apt-get install -y --no-install-recommends \
+  build-essential \
   openssh-client \
   git \
   zip \
