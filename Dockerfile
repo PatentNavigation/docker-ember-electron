@@ -17,7 +17,13 @@ RUN dpkg --add-architecture i386 && \
   apt-get update && \
   apt-get install -y --no-install-recommends \
   build-essential \
+  autoconf \
   openssh-client \
+  # libssl-dev, libcurl4-openssl-dev and libgsf-1-dev needed to build osslsigntool
+  libssl-dev \
+  libcurl4-openssl-dev \
+  libgsf-1-dev \
+  vim \
   git \
   zip \
   nodejs \
@@ -32,7 +38,14 @@ RUN dpkg --add-architecture i386 && \
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# build osslsigntool
+RUN curl -L "http://downloads.sourceforge.net/project/osslsigncode/osslsigncode/osslsigncode-1.7.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fosslsigncode%2Ffiles%2Fosslsigncode%2F&ts=1413463046&use_mirror=optimate" | tar -xz
+WORKDIR osslsigncode-1.7.1
+RUN ./configure && make && make install
+
 ENV WINEDEBUG -all,err+all
 ENV WINEDLLOVERRIDES winemenubuilder.exe=d
 
 RUN wineboot --init || true
+
+WORKDIR /root
