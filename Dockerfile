@@ -25,6 +25,7 @@ RUN dpkg --add-architecture i386 && \
   libgsf-1-dev \
   vim \
   git \
+  unzip \
   zip \
   nodejs \
   yarn \
