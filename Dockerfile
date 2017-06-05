@@ -47,12 +47,10 @@ RUN ./configure && make && make install
 
 # build stubbed signtool.exe which can run under wine and call osslsigntool
 COPY ./main.go /gosigntool/main.go
-COPY ./osslsign.sh /gosigntool/osslsign.sh
 WORKDIR /gosigntool
 RUN GOOS=windows GOARCH=386 go build -o signtool.exe main.go
 RUN cp signtool.exe /usr/local/bin/signtool.exe
-RUN chmod +x osslsign.sh
-RUN cp osslsign.sh /usr/local/bin/osslsign.sh
+COPY ./osslsign.sh /usr/local/bin/osslsign.sh
 
 ENV WINEDEBUG -all,err+all
 ENV WINEDLLOVERRIDES winemenubuilder.exe=d
