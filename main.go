@@ -1,13 +1,15 @@
 package main
 
 import (
-	"log"
-	"os"
-	"os/exec"
+  "log"
+  "os"
+  "os/exec"
+  "io/ioutil"
+  "fmt"
 )
 
-func main() {
-	var keyPath, password, filePath string
+func ParseArguments() (string, string, string) {
+  var keyPath, password, filePath string
 	for idx, param := range os.Args {
 		if param == "/f" {
 			keyPath = os.Args[idx+1]
@@ -20,6 +22,7 @@ func main() {
 		}
 	}
 
+  // if the important commands aren't set we're done
 	if keyPath == "" {
 		log.Fatal("keyPath not set")
 	}
@@ -27,44 +30,34 @@ func main() {
 		log.Fatal("password not set")
 	}
 	if filePath == "" {
-		log.Fatal("exe file path not set")
+		log.Fatal("file to sign path not set")
 	}
 
-	args := []string{
-		"/c",
-		"start",
-		"/wait",
-		"/unix",
-		"/usr/local/bin/osslsigncode", // Path for osslsigncode on OSX/Linux
-		"-in",
-		filePath,
-		"-out",
-		filePath + ".signed",
-		"-t",
-		"http://timestamp.verisign.com/scripts/timstamp.dll",
-		"-pkcs12",
-		keyPath,
-		"-pass",
-		password}
+  return keyPath, password, filePath
+}
 
-	cmd := exec.Command("cmd", args...)
-	cmd.Start()
-	for {
-		if _, err := os.Stat(filePath + ".signed"); err == nil {
-			break
-		}
-	}
+func main() {
+  // Parse command line arguments from signtool.exe so we can map it to
+  // osslsigncode paramaters
+  keyPath, password, filePath := ParseArguments()
 
-	err := cmd.Process.Kill()
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = os.Remove(filePath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = os.Rename(filePath+".signed", filePath)
-	if err != nil {
-		log.Fatal(err)
-	}
+  // set the command line args for SHA1 signing via osslsigncode
+  args := []string{
+    filePath,
+    keyPath,
+    password}
+
+  // sign the code for sha1
+  cmd := exec.Command("/usr/local/bin/osslsign.sh", args...)
+  stderr, err := cmd.StderrPipe()
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  if err = cmd.Start(); err != nil {
+    log.Fatal(err)
+  }
+
+  slurp, _ := ioutil.ReadAll(stderr)
+  fmt.Printf("%s\n", slurp)
 }
