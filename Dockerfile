@@ -23,6 +23,7 @@ RUN dpkg --add-architecture i386 && \
   libssl-dev \
   libcurl4-openssl-dev \
   libgsf-1-dev \
+  golang \
   vim \
   git \
   unzip \
@@ -43,6 +44,13 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN curl -L "http://downloads.sourceforge.net/project/osslsigncode/osslsigncode/osslsigncode-1.7.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fosslsigncode%2Ffiles%2Fosslsigncode%2F&ts=1413463046&use_mirror=optimate" | tar -xz
 WORKDIR osslsigncode-1.7.1
 RUN ./configure && make && make install
+
+# build stubbed signtool.exe which can run under wine and call osslsigntool
+COPY ./main.go /gosigntool/main.go
+WORKDIR /gosigntool
+RUN GOOS=windows GOARCH=386 go build -o signtool.exe main.go
+RUN cp signtool.exe /usr/local/bin/signtool.exe
+COPY ./osslsign.sh /usr/local/bin/osslsign.sh
 
 ENV WINEDEBUG -all,err+all
 ENV WINEDLLOVERRIDES winemenubuilder.exe=d
