@@ -1,52 +1,29 @@
-FROM markadams/chromium-xvfb
+FROM circleci/node:8.9.0-stretch-browsers
+
+USER root
 
 ENV MONO_VERSION 4.8.0.495
 
-# Node 6 repo
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
-
-# Yarn repo
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
-
 # WineHQ repo
 RUN curl -sS https://dl.winehq.org/wine-builds/Release.key | apt-key add -
-RUN echo "deb https://dl.winehq.org/wine-builds/debian/ jessie main" | tee /etc/apt/sources.list.d/winehq.list
+RUN echo "deb https://dl.winehq.org/wine-builds/debian/ stretch main" | tee /etc/apt/sources.list.d/winehq.list
 
 # Mono repo
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-RUN echo "deb http://download.mono-project.com/repo/debian jessie main" | tee /etc/apt/sources.list.d/mono-official.list
+RUN echo "deb http://download.mono-project.com/repo/debian stretch main" | tee /etc/apt/sources.list.d/mono-official.list
 
 RUN dpkg --add-architecture i386
+RUN apt-get install apt-transport-https
 RUN apt-get update && \
   apt-get install -y --no-install-recommends \
-  build-essential \
-  autoconf \
-  openssh-client \
-  # libssl-dev, libcurl4-openssl-dev and libgsf-1-dev needed to build osslsigntool
-  libssl-dev \
-  libcurl4-openssl-dev \
-  libgsf-1-dev \
   golang \
   vim \
-  git \
-  unzip \
-  zip \
-  nodejs \
-  yarn \
-  # libgconf needed for electron
-  libgconf-2-4 \
   fakeroot \
   mono-devel \
-  ca-certificates-mono
+  ca-certificates-mono \
+  osslsigncode
 RUN apt-get install -y --install-recommends winehq-stable
-
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# build osslsigntool
-RUN curl -L "http://downloads.sourceforge.net/project/osslsigncode/osslsigncode/osslsigncode-1.7.1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fosslsigncode%2Ffiles%2Fosslsigncode%2F&ts=1413463046&use_mirror=optimate" | tar -xz
-WORKDIR osslsigncode-1.7.1
-RUN ./configure && make && make install
 
 # build stubbed signtool.exe which can run under wine and call osslsigntool
 COPY ./main.go /gosigntool/main.go
