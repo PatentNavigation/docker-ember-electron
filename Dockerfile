@@ -38,4 +38,4 @@ ENV WINEARCH=win64
 
 RUN wineboot --init
 
-WORKDIR /root
+USER circleci
