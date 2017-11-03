@@ -1,8 +1,8 @@
 FROM circleci/node:8.9.0-stretch-browsers
 
-USER root
-
 ENV MONO_VERSION 4.8.0.495
+
+USER root
 
 # WineHQ repo
 RUN curl -sS https://dl.winehq.org/wine-builds/Release.key | apt-key add -
@@ -32,10 +32,10 @@ RUN GOOS=windows GOARCH=386 go build -o signtool.exe main.go
 RUN cp signtool.exe /usr/local/bin/signtool.exe
 COPY ./osslsign.sh /usr/local/bin/osslsign.sh
 
+USER circleci
+
 ENV WINEDEBUG -all,err+all
 ENV WINEDLLOVERRIDES winemenubuilder.exe=d
 ENV WINEARCH=win64
 
 RUN wineboot --init
-
-USER circleci
