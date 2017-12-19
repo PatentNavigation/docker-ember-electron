@@ -21,7 +21,9 @@ RUN apt-get update && \
   fakeroot \
   mono-devel \
   ca-certificates-mono \
-  osslsigncode
+  osslsigncode \
+  # libsecret needed for keytar
+  libsecret-1-dev
 RUN apt-get install -y --install-recommends winehq-stable
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
