@@ -23,7 +23,9 @@ RUN apt-get update && \
   ca-certificates-mono \
   osslsigncode \
   # libsecret needed for keytar
-  libsecret-1-dev
+  libsecret-1-dev \
+  # libc6-dev-i386 needed to build for 32-bit (keytar native)
+  libc6-dev-i386
 RUN apt-get install -y --install-recommends winehq-stable
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
