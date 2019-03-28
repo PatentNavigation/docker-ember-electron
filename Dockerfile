@@ -26,7 +26,7 @@ RUN apt-get update && \
   libsecret-1-dev \
   # libc6-dev-i386 needed to build for 32-bit (keytar native)
   libc6-dev-i386
-RUN apt-get install -y --install-recommends winehq-stable
+RUN apt-get install -y --allow-unauthenticated --install-recommends winehq-stable
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # build stubbed signtool.exe which can run under wine and call osslsigntool
