@@ -1,4 +1,4 @@
-FROM circleci/node:10-stretch-browsers
+FROM circleci/node:12-stretch-browsers
 
 ENV MONO_VERSION 4.8.0.495
 
